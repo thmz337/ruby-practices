@@ -20,7 +20,7 @@ end
 
 def last_frame_three_throws?(scores)
   shots = make_shots(scores[0...-3])
-  shots.size.even? ? true : false
+  shots.size.even?
 end
 
 def make_frames(scores)
@@ -43,56 +43,56 @@ def spare?(frame)
 end
 
 def make_frame_structs(frames)
-  frame_struct = Struct.new('FrameStruct', :frame, :next)
+  frame = Struct.new('FrameStruct', :current, :next)
   head, prev = nil
 
   frames.each_with_index do |f, idx|
-    f_struct = frame_struct.new(f, nil)
+    fr = frame.new(f, nil)
     if idx.zero?
-      head = f_struct
+      head = fr
     else
-      prev.next = f_struct
+      prev.next = fr
     end
-    prev = f_struct
+    prev = fr
   end
 
   head
 end
 
-def last_frame?(frame_struct)
-  frame_struct.next.nil?
+def last_frame?(frame)
+  frame.next.nil?
 end
 
-def calculate_strike_frame_point(f_struct)
+def calculate_strike_frame_point(frame)
   point = 0
 
-  point += if last_frame?(f_struct.next)
-             f_struct.frame.sum + f_struct.next.frame[0] + f_struct.next.frame[1]
-           elsif strike?(f_struct.next.frame)
-             (f_struct.frame.sum * 2) + f_struct.next.next.frame[0]
+  point += if last_frame?(frame.next)
+             frame.current.sum + frame.next.current[0] + frame.next.current[1]
+           elsif strike?(frame.next.current)
+             (frame.current.sum * 2) + frame.next.next.current[0]
            else
-             f_struct.frame.sum + f_struct.next.frame.sum
+             frame.current.sum + frame.next.current.sum
            end
 
   point
 end
 
-def calculate_spare_frame_point(f_struct)
-  f_struct.frame.sum + f_struct.next.frame[0]
+def calculate_spare_frame_point(frame)
+  frame.current.sum + frame.next.current[0]
 end
 
-def calculate_all_frame_point(frame_structs)
+def calculate_all_frame_point(frames)
   point = 0
-  fs = frame_structs
+  fs = frames
   loop do
     point += if last_frame?(fs)
-               fs.frame.sum
-             elsif strike?(fs.frame)
+               fs.current.sum
+             elsif strike?(fs.current)
                calculate_strike_frame_point(fs)
-             elsif spare?(fs.frame)
+             elsif spare?(fs.current)
                calculate_spare_frame_point(fs)
              else
-               fs.frame.sum
+               fs.current.sum
              end
 
     fs = fs.next
@@ -105,5 +105,5 @@ end
 score = ARGV[0]
 scores = make_scores(score)
 frames = make_frames(scores)
-frame_structs = make_frame_structs(frames)
-puts calculate_all_frame_point(frame_structs)
+fs = make_frame_structs(frames)
+puts calculate_all_frame_point(fs)
