@@ -36,8 +36,10 @@ GEM
 
 PLATFORMS
   arm64-darwin-21
+  arm64-darwin-23
 
 DEPENDENCIES
+  rubocop
   rubocop-fjord
 
 BUNDLED WITH

@@ -1,6 +1,12 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+Frame = Data.define(:current, :next) do
+  def last_frame?
+    self.next.nil?
+  end
+end
+
 def make_scores(score)
   score.split(',')
 end
@@ -42,31 +48,18 @@ def spare?(frame)
   frame[0] != 10 && frame.sum == 10
 end
 
-def make_frame_structs(frames)
-  frame = Struct.new('FrameStruct', :current, :next)
-  head, prev = nil
-
-  frames.each_with_index do |f, idx|
-    fr = frame.new(f, nil)
-    if idx.zero?
-      head = fr
-    else
-      prev.next = fr
-    end
-    prev = fr
+def connect_frames(frames)
+  if frames[1].nil?
+    Frame.new(frames[0], nil)
+  else
+    Frame.new(frames[0], connect_frames(frames[1..]))
   end
-
-  head
-end
-
-def last_frame?(frame)
-  frame.next.nil?
 end
 
 def calculate_strike_frame_point(frame)
   point = 0
 
-  point += if last_frame?(frame.next)
+  point += if frame.next.last_frame?
              frame.current.sum + frame.next.current[0] + frame.next.current[1]
            elsif strike?(frame.next.current)
              (frame.current.sum * 2) + frame.next.next.current[0]
@@ -85,7 +78,7 @@ def calculate_all_frame_point(frames)
   point = 0
   fs = frames
   loop do
-    point += if last_frame?(fs)
+    point += if fs.last_frame?
                fs.current.sum
              elsif strike?(fs.current)
                calculate_strike_frame_point(fs)
@@ -95,8 +88,9 @@ def calculate_all_frame_point(frames)
                fs.current.sum
              end
 
+    break if fs.last_frame?
+
     fs = fs.next
-    break if fs.nil?
   end
 
   point
@@ -105,5 +99,5 @@ end
 score = ARGV[0]
 scores = make_scores(score)
 frames = make_frames(scores)
-fs = make_frame_structs(frames)
+fs = connect_frames(frames)
 puts calculate_all_frame_point(fs)
