@@ -5,6 +5,32 @@ Frame = Data.define(:current, :next) do
   def last_frame?
     self.next.nil?
   end
+
+  def strike?
+    current[0] == 10
+  end
+
+  def spare?
+    current[0] != 10 && current.sum == 10
+  end
+
+  def calculate_strike_frame_point
+    point = 0
+
+    point += if self.next.last_frame?
+               current.sum + self.next.current[0] + self.next.current[1]
+             elsif self.next.strike?
+               (current.sum * 2) + self.next.next.current[0]
+             else
+               current.sum + self.next.current.sum
+             end
+
+    point
+  end
+
+  def calculate_spare_frame_point
+    current.sum + self.next.current[0]
+  end
 end
 
 def make_scores(score)
@@ -40,14 +66,6 @@ def make_frames(scores)
   end
 end
 
-def strike?(frame)
-  frame[0] == 10
-end
-
-def spare?(frame)
-  frame[0] != 10 && frame.sum == 10
-end
-
 def connect_frames(frames)
   if frames[1].nil?
     Frame.new(frames[0], nil)
@@ -56,34 +74,16 @@ def connect_frames(frames)
   end
 end
 
-def calculate_strike_frame_point(frame)
-  point = 0
-
-  point += if frame.next.last_frame?
-             frame.current.sum + frame.next.current[0] + frame.next.current[1]
-           elsif strike?(frame.next.current)
-             (frame.current.sum * 2) + frame.next.next.current[0]
-           else
-             frame.current.sum + frame.next.current.sum
-           end
-
-  point
-end
-
-def calculate_spare_frame_point(frame)
-  frame.current.sum + frame.next.current[0]
-end
-
 def calculate_all_frame_point(frames)
   point = 0
   fs = frames
   loop do
     point += if fs.last_frame?
                fs.current.sum
-             elsif strike?(fs.current)
-               calculate_strike_frame_point(fs)
-             elsif spare?(fs.current)
-               calculate_spare_frame_point(fs)
+             elsif fs.strike?
+               fs.calculate_strike_frame_point
+             elsif fs.spare?
+               fs.calculate_spare_frame_point
              else
                fs.current.sum
              end
@@ -99,5 +99,5 @@ end
 score = ARGV[0]
 scores = make_scores(score)
 frames = make_frames(scores)
-fs = connect_frames(frames)
-puts calculate_all_frame_point(fs)
+first_frame = connect_frames(frames)
+puts calculate_all_frame_point(first_frame)
