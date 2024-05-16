@@ -55,7 +55,7 @@ def last_frame_three_throws?(scores)
   shots.size.even?
 end
 
-def make_frames(scores)
+def split_into_frames(scores)
   if last_frame_three_throws?(scores)
     last_three_throws = scores[-3..].map do |t|
       t == 'X' ? 10 : t.to_i
@@ -98,6 +98,6 @@ end
 
 score = ARGV[0]
 scores = make_scores(score)
-frames = make_frames(scores)
-first_frame = connect_frames(frames)
+scores_by_frame = split_into_frames(scores)
+first_frame = connect_frames(scores_by_frame)
 puts calculate_all_frame_point(first_frame)
