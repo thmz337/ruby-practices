@@ -10,6 +10,7 @@ end
 
 def make_matrix(files)
   number_of_files = files.size
+
   col = (number_of_files % MAX_COLUMN).zero? ? number_of_files.div(MAX_COLUMN) : number_of_files.div(MAX_COLUMN) + 1
 
   files.each_slice(col).map do |fs|
@@ -30,7 +31,10 @@ def make_display_text(matrix)
 end
 
 files = current_directory_files
-matrix = make_matrix(files)
-display_matrix = matrix.transpose
-display_text = make_display_text(display_matrix)
-puts display_text
+
+unless files.empty?
+  matrix = make_matrix(files)
+  display_matrix = matrix.transpose
+  display_text = make_display_text(display_matrix)
+  puts display_text
+end
