@@ -34,6 +34,7 @@ options = OptionParser.new do |opts|
   opts.banner = 'Usage: ./ls.rb [options]'
 
   opts.on('-a', 'Include directory entries whose names begin with a dot (‘.’).')
+  opts.on('-r', 'Display files in reverse order.')
 end
 
 begin
@@ -46,6 +47,7 @@ rescue OptionParser::ParseError => e
 end
 
 file_names = current_directory_file_names(params)
+file_names.reverse! if params.include?(:r)
 
 unless file_names.empty?
   matrix = make_matrix(file_names)
