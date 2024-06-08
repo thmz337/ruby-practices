@@ -2,10 +2,12 @@
 
 # frozen_string_literal: true
 
+require 'optparse'
+
 MAX_COLUMN = 3
 
-def current_directory_file_names
-  Dir.glob('*')
+def current_directory_file_names(options = {})
+  options.include?(:a) ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
 end
 
 def make_matrix(file_names)
@@ -28,7 +30,22 @@ def make_display_text(matrix)
   matrix.map { |m| m.join.rstrip!.concat("\n") }.join
 end
 
-file_names = current_directory_file_names
+options = OptionParser.new do |opts|
+  opts.banner = 'Usage: ./ls.rb [options]'
+
+  opts.on('-a', 'Include directory entries whose names begin with a dot (‘.’).')
+end
+
+begin
+  params = {}
+  options.parse!(ARGV, into: params)
+rescue OptionParser::ParseError => e
+  puts e.message
+  puts options.help
+  exit
+end
+
+file_names = current_directory_file_names(params)
 
 unless file_names.empty?
   matrix = make_matrix(file_names)
