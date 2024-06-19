@@ -10,7 +10,7 @@ options = OptionParser.new do |opts|
 
   opts.on('-a', 'Include directory entries whose names begin with a dot (‘.’).')
   opts.on('-r', 'Display files in reverse order.')
-  opts.on('-l', 'Display files in reverse order.')
+  opts.on('-l', 'List files in the long format.')
 end
 
 begin
@@ -69,20 +69,21 @@ def make_display_text(matrix)
   matrix.map { |m| m.join.rstrip!.concat("\n") }.join
 end
 
-def file_mode_text(stat)
-  type = FILE_TYPE_ABBRV[stat.ftype]
-  mode = stat.mode.to_s(8).length == 5 ? "0#{stat.mode.to_s(8)}" : stat.mode.to_s(8)
-  "#{type}#{mode[3..5].chars.map { |c| FILE_PERMISSION_TEXT[c] }.join}"
+def convert_mode_to_octal_string(mode)
+  mode.to_s(8)
 end
 
-def max_column_element_length(column_elements)
-  column_elements.max_by(&:length)
+def file_mode_text(stat)
+  type = FILE_TYPE_ABBRV[stat.ftype]
+  octalized_file_mode = convert_mode_to_octal_string(stat.mode)
+  file_mode = octalized_file_mode.length == 5 ? "0#{octalized_file_mode}" : octalized_file_mode
+  "#{type}#{file_mode[3..5].chars.map { |c| FILE_PERMISSION_TEXT[c] }.join}"
 end
 
 file_names = current_directory_file_names(params)
 
 if params.include?(:l)
-  file_stats_array = file_names.map do |file_name|
+  file_stats = file_names.map do |file_name|
     stat = File.lstat(file_name)
     [
       file_mode_text(stat),
@@ -96,20 +97,20 @@ if params.include?(:l)
     ]
   end
 
-  group_elements_per_column = file_stats_array.transpose
+  group_elements_per_column = file_stats.transpose
   max_element_length_per_column = {}
   group_elements_per_column.each_with_index do |elm, idx|
     max_element_length_per_column[idx] = elm.max_by(&:length).length
   end
 
-  justify_file_stats_array = file_stats_array.map do |stat_elm|
+  justify_file_stats = file_stats.map do |stat_elm|
     stat_elm.map.with_index do |elm, idx|
       elm.rjust(max_element_length_per_column[idx])
     end
   end
 
   file_names = file_names.map.with_index do |file_name, idx|
-    (justify_file_stats_array[idx] << file_name).join(' ')
+    (justify_file_stats[idx] << file_name).join(' ')
   end
 end
 
