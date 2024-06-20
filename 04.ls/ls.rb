@@ -83,7 +83,7 @@ end
 file_names = current_directory_file_names(params)
 
 if params.include?(:l)
-  file_stats = file_names.map do |file_name|
+  file_informations_array = file_names.map do |file_name|
     stat = File.lstat(file_name)
     [
       file_mode_text(stat),
@@ -97,20 +97,20 @@ if params.include?(:l)
     ]
   end
 
-  group_elements_per_column = file_stats.transpose
+  group_file_informations_array_per_column = file_informations_array.transpose
   max_element_length_per_column = {}
-  group_elements_per_column.each_with_index do |elm, idx|
-    max_element_length_per_column[idx] = elm.max_by(&:length).length
+  group_file_informations_array_per_column.each_with_index do |file_informations, idx|
+    max_element_length_per_column[idx] = file_informations.max_by(&:length).length
   end
 
-  justify_file_stats = file_stats.map do |stat_elm|
-    stat_elm.map.with_index do |elm, idx|
-      elm.rjust(max_element_length_per_column[idx])
+  justify_file_informations_array = file_informations_array.map do |file_informations|
+    file_informations.map.with_index do
+      _1.rjust(max_element_length_per_column[_2])
     end
   end
 
   file_names = file_names.map.with_index do |file_name, idx|
-    (justify_file_stats[idx] << file_name).join(' ')
+    (justify_file_informations_array[idx] << file_name).join(' ')
   end
 end
 
