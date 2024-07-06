@@ -28,5 +28,8 @@ end
 MAX_COLUMN = params.include?(:l) ? 1 : 3
 
 file_names = FileNamesList.new(params).current_directory
-file_matrix = FileMatrix.new(file_names, MAX_COLUMN).formatted_matrix
-puts file_matrix.map { |m| m.join.rstrip!.concat("\n") }.join
+
+unless file_names.empty?
+  file_matrix = FileMatrix.new(file_names, MAX_COLUMN).formatted_matrix
+  puts file_matrix.map { |m| m.join.rstrip!.concat("\n") }.join
+end
