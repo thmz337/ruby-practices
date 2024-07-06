@@ -30,7 +30,7 @@ class FileNamesList
     file_names = @options.include?(:a) ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
     file_names.reverse! if @options.include?(:r)
 
-    return unless @options.include?(:l)
+    return file_names unless @options.include?(:l)
 
     file_informations_array = file_names.map do |file_name|
       get_file_stats(file_name)
