@@ -7,22 +7,22 @@ require 'tempfile'
 
 ENV['POSIXLY_CORRECT'] = '1'
 
-def count_lines
-  proc { |input| input.readlines.size }
+def count_lines(input)
+  input.readlines.size
 end
 
-def count_words
-  proc { |input| input.read.split.size }
+def count_words(input)
+  input.read.split.size
 end
 
-def count_chars
-  proc { |input| input.each_char.count }
+def count_chars(input)
+  input.each_char.count
 end
 
 OPTION_METHODS_TABLE = {
-  l: count_lines,
-  w: count_words,
-  c: count_chars
+  l: method('count_lines'),
+  w: method('count_words'),
+  c: method('count_chars')
 }.freeze
 
 def append_number_of_spaces(text, num)
