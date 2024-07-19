@@ -8,7 +8,6 @@ require 'optparse'
 require_relative 'file_stat'
 
 class LS
-
   def initialize(options = {})
     @options = options
     @max_column = @options.include?(:l) ? 1 : 3

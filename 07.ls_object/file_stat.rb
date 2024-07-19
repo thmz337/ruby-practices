@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class FileStat
   FILE_TYPE_ABBRV = {
     'file' => '-',
