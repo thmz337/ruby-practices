@@ -23,20 +23,23 @@ module LS
       '7' => 'rwx'
     }.freeze
 
-    attr_reader :stat
+    attr_reader :file_name, :file_mode, :nlink, :user, :group, :size, :mod_month, :mod_day, :mod_time
 
     def initialize(file_name)
       raw_stat = ::File.lstat(file_name)
-      @stat = [
-        file_mode_text(raw_stat),
-        raw_stat.nlink.to_s,
-        Etc.getpwuid(raw_stat.uid).name,
-        Etc.getgrgid(raw_stat.gid).name,
-        raw_stat.size.to_s,
-        raw_stat.mtime.month.to_s,
-        raw_stat.mtime.day.to_s,
-        raw_stat.mtime.strftime('%H:%M')
-      ]
+      @file_name = file_name
+      @file_mode = file_mode_text(raw_stat)
+      @nlink = raw_stat.nlink.to_s
+      @user = Etc.getpwuid(raw_stat.uid).name
+      @group = Etc.getgrgid(raw_stat.gid).name
+      @size = raw_stat.size.to_s
+      @mod_month = raw_stat.mtime.month.to_s
+      @mod_day = raw_stat.mtime.day.to_s
+      @mod_time = raw_stat.mtime.strftime('%H:%M')
+    end
+
+    def stat
+      [file_mode, nlink, user, group, size, mod_month, mod_day, mod_time]
     end
 
     private
