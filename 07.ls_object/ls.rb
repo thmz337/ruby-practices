@@ -3,32 +3,17 @@
 # frozen_string_literal: true
 
 require 'etc'
-require 'optparse'
 
+require_relative 'option'
 require_relative 'file_list'
 
-options = OptionParser.new do |opts|
-  opts.banner = 'Usage: ./ls.rb [options]'
+options = LS::OptionParser.new(ARGV).options
 
-  opts.on('-a', 'Include directory entries whose names begin with a dot (‘.’).')
-  opts.on('-r', 'Display files in reverse order.')
-  opts.on('-l', 'List files in the long format.')
-end
+max_column = options.include?(:l) ? 1 : 3
 
-begin
-  params = {}
-  options.parse!(ARGV, into: params)
-rescue OptionParser::ParseError => e
-  puts e.message
-  puts options.help
-  exit
-end
-
-max_column = params.include?(:l) ? 1 : 3
-
-file_names = params.include?(:a) ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
-file_names.reverse! if params.include?(:r)
+file_names = options.include?(:a) ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
+file_names.reverse! if options.include?(:r)
 
 files = LS::FileList.new(file_names)
 
-puts files.show(max_column, long_format: params.include?(:l))
+puts files.show(max_column, long_format: options.include?(:l))
