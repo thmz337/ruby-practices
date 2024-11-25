@@ -5,9 +5,15 @@ require_relative 'file'
 module LS
   class FileList
     attr_reader :files
+    attr_accessor :reverse_order, :long_format, :max_column
 
-    def initialize(file_names)
+    def initialize(options)
+      file_names = options.include?(:a) ? Dir.glob('*', ::File::FNM_DOTMATCH) : Dir.glob('*')
+      file_names.reverse! if options.include?(:r)
       @files = file_names.map { |file_name| LS::File.new(file_name) }
+      @reverse_order = options.include?(:r)
+      @long_format = options.include?(:l)
+      @max_column = long_format ? 1 : 3
     end
 
     def current_directory_stats
@@ -29,13 +35,13 @@ module LS
       end
     end
 
-    def show(max_column, long_format: false)
-      matrix(max_column, long_format:).map { |m| m.join.rstrip!.concat("\n") }.join
+    def show
+      matrix.map { |m| m.join.rstrip!.concat("\n") }.join
     end
 
     private
 
-    def matrix(max_column, long_format: false)
+    def matrix
       num_of_files = files.size
 
       formatted_files = long_format ? current_directory_stats : files.map { |file| file.file_name }
