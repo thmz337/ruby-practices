@@ -44,6 +44,8 @@ module LS
     def matrix
       num_of_files = files.size
 
+      return [] if num_of_files == 0
+
       formatted_files = long_format ? current_directory_stats : files.map { |file| file.file_name }
 
       num_of_display_rows = (num_of_files % max_column).zero? ? num_of_files.div(max_column) : num_of_files.div(max_column) + 1
